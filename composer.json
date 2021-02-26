@@ -1,5 +1,5 @@
 {
     "require": {
-        "spomky-labs/jose": "^7.0"
+        "firebase/php-jwt": "^5.2"
     }
 }

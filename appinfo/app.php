@@ -1,9 +1,7 @@
 <?php
 
 require(dirname(__FILE__) . "/../vendor/autoload.php");
-use Jose\Loader;
-use Jose\Factory\JWKFactory;
-use Jose\Factory\CheckerManagerFactory;
+
 
 function prepareUserLogin($user, $firstTimeLogin){
 	OC::$server->getCsrfTokenManager()->refreshToken();
@@ -15,7 +13,7 @@ function prepareUserLogin($user, $firstTimeLogin){
 	}
 }
 function getUserInfo(){
-	$key = JWKFactory::createFromKey(<<<EOT
+	$publickey = <<<EOT
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAraewUw7V1hiuSgUvkly9
 X+tcIh0e/KKqeFnAo8WR3ez2tA0fGwM+P8sYKHIDQFX7ER0c+ecTiKpo/Zt/a6AO
@@ -25,32 +23,22 @@ g5/YhsWUdcX+uDVthEEEGOikSacKZMFGZNi8X8YVnRyWLf24QTJnTHEv+0EStNrH
 HnxCPX0m79p7tBfFC2ha2OYfOtA+94ZfpZXUi2r6gJZ+dq9FWYyA0DkiYPUq9QMb
 OQIDAQAB
 -----END PUBLIC KEY-----
-EOT
-	);
+EOT;
 
 	try {
 		if(!isset($_COOKIE["traP_token"])){
 			throw new Exception("No token");
 		}
-
-		$loader = new Loader();
-		$jws = $loader->loadAndVerifySignatureUsingKey($_COOKIE["traP_token"], $key, ["RS256"], $index);
-
-		$checker = CheckerManagerFactory::createClaimCheckerManager(["exp", "iat", "nbf"], ["crit"]);
-		$checker->checkJWS($jws, 0);
-
-		if($jws->getSignature(0)->getProtectedHeader("alg") !== "RS256"){
-			throw new Exception("Unexpected signature algoritm");
-		}
+		$jwt = JWT::decode($_COOKIE["traP_token"], $publickey, array('RS256'));
 	} catch(Exception $e) {
-		header("Location: https://q.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"]));
+		header("Location: https://q.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "?" . $_SERVER["QUERY_STRING"]));
 		exit;
 	}
 
 	return [
-		"uid" => $jws->getClaim("id"),
-		"email" => $jws->getClaim("email"),
-		"displayName" => $jws->getClaim("id"),
+		"uid" => $jwt->id,
+		"email" => $jwt->id . "@example.com",
+		"displayName" => $jwt->id,
 	];
 }
 function authWithTrapToken(){
