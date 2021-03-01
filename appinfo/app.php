@@ -1,7 +1,7 @@
 <?php
 
 require(dirname(__FILE__) . "/../vendor/autoload.php");
-
+use \Firebase\JWT\JWT;
 
 function prepareUserLogin($user, $firstTimeLogin){
 	OC::$server->getCsrfTokenManager()->refreshToken();
