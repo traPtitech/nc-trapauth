@@ -84,7 +84,7 @@ class TrapAuth {
     }
 
     public function authWithTrapToken() {
-        if (strpos($this->request->getRequestUri(), "/index.php/login") !== 0) {
+        if (strpos($this->request->getRequestUri(), "/login") !== 0) {
             return;
         }
         if ($this->session->isLoggedIn()) {
