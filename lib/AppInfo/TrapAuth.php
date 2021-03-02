@@ -73,7 +73,7 @@ class TrapAuth {
         ];
     }
 
-    function prepareUserLogin($user, $firstTimeLogin) {
+    private function prepareUserLogin($user, $firstTimeLogin) {
         $this->csrfTokenManager->refreshToken();
         OC_Util::setupFS($user->getUID());
 
