@@ -9,6 +9,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Files\IRootFolder;
+use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserManager;
@@ -32,7 +33,8 @@ class Application extends App implements IBootstrap {
                 $c->get(CsrfTokenManager::class),
                 $c->get(IRootFolder::class),
                 $c->get(IRequest::class),
-                $c->get(IUserSession::class)
+                $c->get(IUserSession::class),
+                $c->get(IConfig::class)
             );
         });
     }
