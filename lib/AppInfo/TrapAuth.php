@@ -65,7 +65,7 @@ class TrapAuth {
             if(is_null($token)){
                 throw new Exception("No token");
             }
-            $invalidate_tokens = $this->config->getSystemValue("trap.invalidate_tokens", []);
+            $invalidate_tokens = explode(" ", $this->config->getSystemValueString("trap.invalidate_tokens"));
             if (in_array($token, $invalidate_tokens, true)) {
                 throw new Exception("Invalid token");
             }
