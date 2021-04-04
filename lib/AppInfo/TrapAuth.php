@@ -7,7 +7,6 @@ use Exception;
 use OC\Security\CSRF\CsrfTokenManager;
 use OC_Util;
 use OCP\Files\IRootFolder;
-use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserManager;
@@ -40,23 +39,19 @@ class TrapAuth {
     private IRequest $request;
     /** @var IUserSession */
     private IUserSession $session;
-    /** @var IConfig */
-    private IConfig $config;
 
     public function __construct(IUserManager $userManager,
                                 IGroupManager $groupManager,
                                 CsrfTokenManager $csrfTokenManager,
                                 IRootFolder $rootFolder,
                                 IRequest $request,
-                                IUserSession $session,
-                                IConfig $config) {
+                                IUserSession $session) {
         $this->userManager = $userManager;
         $this->groupManager = $groupManager;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->rootFolder = $rootFolder;
         $this->request = $request;
         $this->session = $session;
-        $this->config = $config;
     }
 
     private function getUserInfo(): array {
@@ -64,10 +59,6 @@ class TrapAuth {
             $token = $this->request->getCookie("traP_token");
             if(is_null($token)){
                 throw new Exception("No token");
-            }
-            $invalidate_tokens = explode(" ", $this->config->getSystemValueString("trap.invalidate_tokens"));
-            if (in_array($token, $invalidate_tokens, true)) {
-                throw new Exception("Invalid token");
             }
             $jwt = JWT::decode($token, publicKey, array('RS256'));
         } catch(Exception $e) {
