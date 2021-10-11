@@ -71,7 +71,7 @@ class TrapAuth {
             }
             $jwt = JWT::decode($token, publicKey, array('RS256'));
         } catch(Exception $e) {
-            header("Location: https://q.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "?" . $_SERVER["QUERY_STRING"]));
+            header("Location: https://portal.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "?" . $_SERVER["QUERY_STRING"]));
             exit;
         }
 
