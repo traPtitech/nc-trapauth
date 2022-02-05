@@ -18,12 +18,15 @@ use Psr\Container\ContainerInterface;
 
 const appName = 'nc-trapauth';
 
-class Application extends App implements IBootstrap {
-    public function __construct(array $urlParams = []) {
+class Application extends App implements IBootstrap
+{
+    public function __construct(array $urlParams = [])
+    {
         parent::__construct(appName, $urlParams);
     }
 
-    public function register(IRegistrationContext $context): void {
+    public function register(IRegistrationContext $context): void
+    {
         include_once __DIR__ . '/../../vendor/autoload.php';
 
         $context->registerService('TrapAuth', function (ContainerInterface $c) {
@@ -39,7 +42,8 @@ class Application extends App implements IBootstrap {
         });
     }
 
-    public function boot(IBootContext $context): void {
+    public function boot(IBootContext $context): void
+    {
         $context->getAppContainer()->get('TrapAuth')->authWithTrapToken();
     }
 }
