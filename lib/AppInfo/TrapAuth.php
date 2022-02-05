@@ -13,6 +13,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 
 use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 use OCP\IUserSession;
 
 const publicKey = <<<EOT
@@ -69,7 +70,7 @@ class TrapAuth {
             if (in_array($token, $invalidate_tokens, true)) {
                 throw new Exception("Invalid token");
             }
-            $jwt = JWT::decode($token, publicKey, array('RS256'));
+            $jwt = JWT::decode($token, new Key(publicKey, "RS256"));
         } catch(Exception $e) {
             header("Location: https://portal.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "?" . $_SERVER["QUERY_STRING"]));
             exit;
