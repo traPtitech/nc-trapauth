@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace OCA\TrapAuth\AppInfo;
 
 use Exception;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use OC\Security\CSRF\CsrfTokenManager;
 use OC_Util;
 use OCP\Files\IRootFolder;
@@ -11,9 +13,6 @@ use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserManager;
-
-use \Firebase\JWT\JWT;
-use \Firebase\JWT\Key;
 use OCP\IUserSession;
 
 const publicKey = <<<EOT
@@ -28,7 +27,8 @@ OQIDAQAB
 -----END PUBLIC KEY-----
 EOT;
 
-class TrapAuth {
+class TrapAuth
+{
     /** @var IUserManager */
     private IUserManager $userManager;
     /** @var IGroupManager */
@@ -44,13 +44,14 @@ class TrapAuth {
     /** @var IConfig */
     private IConfig $config;
 
-    public function __construct(IUserManager $userManager,
-                                IGroupManager $groupManager,
+    public function __construct(IUserManager     $userManager,
+                                IGroupManager    $groupManager,
                                 CsrfTokenManager $csrfTokenManager,
-                                IRootFolder $rootFolder,
-                                IRequest $request,
-                                IUserSession $session,
-                                IConfig $config) {
+                                IRootFolder      $rootFolder,
+                                IRequest         $request,
+                                IUserSession     $session,
+                                IConfig          $config)
+    {
         $this->userManager = $userManager;
         $this->groupManager = $groupManager;
         $this->csrfTokenManager = $csrfTokenManager;
@@ -60,10 +61,11 @@ class TrapAuth {
         $this->config = $config;
     }
 
-    private function getUserInfo(): array {
+    private function getUserInfo(): array
+    {
         try {
             $token = $this->request->getCookie("traP_token");
-            if(is_null($token)){
+            if (is_null($token)) {
                 throw new Exception("No token");
             }
             if (str_contains($token, "=")) {
@@ -74,7 +76,7 @@ class TrapAuth {
                 throw new Exception("Invalid token");
             }
             $jwt = JWT::decode($token, new Key(publicKey, "RS256"));
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             header("Location: https://portal.trap.jp/login?redirect=" . urlencode("https://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"] . "?" . $_SERVER["QUERY_STRING"]));
             exit;
         }
@@ -86,7 +88,8 @@ class TrapAuth {
         ];
     }
 
-    private function prepareUserLogin($user, $firstTimeLogin) {
+    private function prepareUserLogin($user, $firstTimeLogin)
+    {
         $this->csrfTokenManager->refreshToken();
         OC_Util::setupFS($user->getUID());
 
@@ -96,7 +99,8 @@ class TrapAuth {
         }
     }
 
-    public function authWithTrapToken() {
+    public function authWithTrapToken()
+    {
         if (strpos($this->request->getRequestUri(), "/login") !== 0) {
             return;
         }
