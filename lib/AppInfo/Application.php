@@ -8,6 +8,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IGroupManager;
@@ -31,6 +32,7 @@ class Application extends App implements IBootstrap
 
         $context->registerService('TrapAuth', function (ContainerInterface $c) {
             return new TrapAuth(
+                $c->get(IEventDispatcher::class),
                 $c->get(IUserManager::class),
                 $c->get(IGroupManager::class),
                 $c->get(CsrfTokenManager::class),
