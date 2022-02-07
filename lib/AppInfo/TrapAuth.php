@@ -8,12 +8,14 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use OC\Security\CSRF\CsrfTokenManager;
 use OC_Util;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
+use OCP\User\Events\PostLoginEvent;
 
 const publicKey = <<<EOT
 -----BEGIN PUBLIC KEY-----
@@ -29,6 +31,8 @@ EOT;
 
 class TrapAuth
 {
+    /** @var IEventDispatcher */
+    private IEventDispatcher $dispatcher;
     /** @var IUserManager */
     private IUserManager $userManager;
     /** @var IGroupManager */
@@ -44,7 +48,8 @@ class TrapAuth
     /** @var IConfig */
     private IConfig $config;
 
-    public function __construct(IUserManager     $userManager,
+    public function __construct(IEventDispatcher $dispatcher,
+                                IUserManager     $userManager,
                                 IGroupManager    $groupManager,
                                 CsrfTokenManager $csrfTokenManager,
                                 IRootFolder      $rootFolder,
@@ -52,6 +57,7 @@ class TrapAuth
                                 IUserSession     $session,
                                 IConfig          $config)
     {
+        $this->dispatcher = $dispatcher;
         $this->userManager = $userManager;
         $this->groupManager = $groupManager;
         $this->csrfTokenManager = $csrfTokenManager;
@@ -132,5 +138,9 @@ class TrapAuth
         $this->prepareUserLogin($user, $user->updateLastLoginTimestamp());
 
         $this->session->createSessionToken($this->request, $user->getUID(), $user->getUID());
+
+        // OCP event dispatcher (recommended as of OC 23)
+        // https://docs.nextcloud.com/server/latest/developer_manual/basics/events.html
+        $this->dispatcher->dispatch(PostLoginEvent::class, new PostLoginEvent($user, $user->getUID(), '', true));
     }
 }
